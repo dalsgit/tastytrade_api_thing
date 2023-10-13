@@ -34,7 +34,10 @@ class TTConfig:
         self.username = self.config.get("Credentials", "username")
         self.password = self.config.get("Credentials", "password")
         self.cert_username = self.config.get("Credentials", "cert.username")
-        self.cert_password = self.config.get("Credentials", "cert.password") 
+        self.cert_password = self.config.get("Credentials", "cert.password")
+        if(not self.use_prod):
+            self.username = self.cert_username
+            self.password = self.cert_password
         self.cert_uri = self.config.get("URI", "cert")
         self.prod_uri = self.config.get("URI", "prod")
         self.cert_wss = self.config.get("WSS", "cert")
