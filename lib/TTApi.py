@@ -219,12 +219,15 @@ class TTApi:
         return response
 
     def simple_order(self, order: TTOrder = None) -> bool:
+        return self.simple_order(self.user_data["accounts"][0]["account-number"], order)
+
+    def simple_order(self, account: str, order: TTOrder = None) -> bool:
         if order is None:
             print(f"You need to supply an order.")
             return False
 
         response = self.__post(
-            f'/accounts/{self.user_data["accounts"][0]["account"]["account-number"]}/orders/dry-run',
+            f'/accounts/{account}/orders/dry-run',
             body=order.build_order(),
         )
 
