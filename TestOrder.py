@@ -19,11 +19,14 @@ else:
         password=ttconfig.cert_password
     )
 
-order = TTOrder(order_type=TTOrderType.LIMIT, tif=TTTimeInForce.GTC, price=1.0,
+order = TTOrder(order_type=TTOrderType.LIMIT, tif=TTTimeInForce.GTC, price=0.10,
     price_effect=TTPriceEffect.CREDIT)
-order.add_leg(symbol="AAPL", quantity=1.0, instrument_type=TTInstrumentType.EQUITY_OPTION,
+order.add_leg(symbol="IWM   231022C00172000", quantity=1.0, instrument_type=TTInstrumentType.EQUITY_OPTION,
     action=TTLegAction.BTO)
+order.add_leg(symbol="IWM   231022C00173000", quantity=1.0, instrument_type=TTInstrumentType.EQUITY_OPTION,
+    action=TTLegAction.STO)
+
 ttapi = TTApi()
 ttapi.login()
 accounts = ttapi.fetch_accounts()
-ttapi.simple_order("account", order)
+ttapi.simple_order('5WX27436', order)

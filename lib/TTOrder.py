@@ -62,6 +62,7 @@ class TTOrder:
     self.order_type = order_type
     self.price = '{:2f}'.format(price)
     self.price_effect = price_effect
+    self.legs = []
 
   def add_leg(self, instrument_type: TTInstrumentType = None,
               symbol: str = None, quantity: int = 0,
