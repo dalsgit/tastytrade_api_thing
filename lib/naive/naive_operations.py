@@ -75,7 +75,7 @@ class Naive:
         symbols = self.get_occ_symbols()
         subscription = self.mytasty.tasty.market_data.subscribe(symbols=symbols, on_quote=self.on_quote)
         subscription.open()
-        time.sleep(1)
+        time.sleep(2)
         subscription.close()
 
     def get_naive_cost(self):
