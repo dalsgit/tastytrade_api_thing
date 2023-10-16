@@ -4,6 +4,8 @@ from lib.tasty_operations import MyTasty
 from lib.TTOrder import *
 from tastytrade_sdk import Quote
 import time
+from lib.TTApi import *
+
 
 class Naive:
     EQUITY_SYMBOL = ""
@@ -78,16 +80,35 @@ class Naive:
         time.sleep(2)
         subscription.close()
 
+    def buy(self, dryrun: bool = True):
+        if(self.buyQuote == None):
+            self.get_quotes()
+        [buyOCC, sellOCC] = self.occ
+        order = TTOrder(order_type=TTOrderType.LIMIT, tif=TTTimeInForce.GTC, price=0.1,
+                        price_effect=TTPriceEffect.DEBIT)
+        order.add_leg(symbol=buyOCC, quantity=1.0, instrument_type=TTInstrumentType.EQUITY_OPTION,
+                      action=TTLegAction.BTO)
+        order.add_leg(symbol=sellOCC, quantity=1.0, instrument_type=TTInstrumentType.EQUITY_OPTION,
+                      action=TTLegAction.STO)
+        ttapi = TTApi()
+        ttapi.login()
+        if(dryrun):
+            ttapi.simple_order('5WT37921', order)
+        else:
+            ttapi.real_order(password="", account='5WT37921', order=order)
+
     def get_naive_cost(self):
         self.get_quotes()
         cost = round(self.buyQuote.ask_price - self.sellQuote.bid_price, 2)
         print("The price of {0} naive is {1}".format(self.EQUITY_SYMBOL, cost))
         return cost
+
 def main():
-    eqs = ["SPY", "QQQ", "IWM"]
+    eqs = ["SPY"] #, "QQQ", "IWM"]
     for eq in eqs:
         n = Naive(eq)
         n.get_naive_cost()
+        n.buy(dryrun=False)
 
 if __name__ == "__main__":
     main()

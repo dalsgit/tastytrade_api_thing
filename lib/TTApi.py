@@ -236,3 +236,19 @@ class TTApi:
 
         print(json.dumps(response))
         return True
+
+    def real_order(self, password: str, account: str, order: TTOrder = None) -> bool:
+        if order is None:
+            print(f"You need to supply an order.")
+            return False
+
+        response = self.__post(
+            f'/accounts/{account}/orders',
+            body=order.build_order(),
+        )
+
+        if response is None:
+            return False
+
+        print(json.dumps(response))
+        return True
