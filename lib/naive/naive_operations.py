@@ -29,33 +29,27 @@ class Naive:
         self.strikes = [strike_price_buy, strike_price_sell]
         return self.strikes
 
-    def get_occ(self, symbol, strike_price):
-        return "{eq}   {dt}C{strike_price:05d}000".format(eq=symbol, dt=self.expiration.strftime('%y%m%d'),
+    def get_occ(self, symbol, expiration:datetime, strike_price):
+        return "{eq}   {dt}C{strike_price:05d}000".format(eq=symbol, dt=expiration.strftime('%y%m%d'),
                                                           strike_price=strike_price)
 
-    def get_number_of_options(self, strike_price):
+    # symbol here is the options OCC symbol
+    def get_number_of_options(self, symbol: str):
         return len(self.mytasty.tasty.api.get(
             '/instruments/equity-options',
-            params=[('symbol[]', self.EQUITY_SYMBOL), ('expiration[]', self.expiration.strftime('%y%m%d')),
-                    ('strike_price[]', strike_price)]
-        ))
+            params=[('symbol[]', symbol)]
+        )['data']['items'])
 
     def get_occ_symbols(self):
         # if we encounter that there are no options for this expiration, add a day
         # do this max of 5 times
         max_times = 5
         strike_price_buy, strike_price_sell = self.get_strikes()
-        while (self.get_number_of_options(strike_price_buy) < 1 and max_times > 0):
+        while (self.get_number_of_options(self.get_occ(self.EQUITY_SYMBOL, self.expiration, strike_price_buy)) < 1 and max_times > 0):
             self.expiration += datetime.timedelta(days=1)
-            occ = self.get_occ(self.EQUITY_SYMBOL, self.expiration, strike_price_buy)
-            options = self.mytasty.tasty.api.get(
-                '/instruments/equity-options',
-                params=[('symbol[]', occ)]  # example: 'SPY   231017C00434000'
-            )
             max_times -= 1
-
-        buyOCC = self.get_occ(self.EQUITY_SYMBOL, strike_price_buy)
-        sellOCC = self.get_occ(self.EQUITY_SYMBOL, strike_price_sell)
+        buyOCC = self.get_occ(self.EQUITY_SYMBOL, self.expiration, strike_price_buy)
+        sellOCC = self.get_occ(self.EQUITY_SYMBOL, self.expiration, strike_price_sell)
         print("Buy OCC: {occ}".format(occ=buyOCC))
         print("Sell OCC: {occ}".format(occ=sellOCC))
         self.occ = [buyOCC, sellOCC]
@@ -104,11 +98,12 @@ class Naive:
         return cost
 
 def main():
-    eqs = ["SPY"] #, "QQQ", "IWM"]
+    eqs = [ "IWM" ]
+    eqs = ["SPY", "QQQ", "IWM"]
     for eq in eqs:
         n = Naive(eq)
         n.get_naive_cost()
-        n.buy(dryrun=False)
+        #n.buy(dryrun=False)
 
 if __name__ == "__main__":
     main()
